@@ -1,132 +1,254 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Z-Сбережения: Навигатор посильности</title>
-  <!-- Подключаем стили stlite для корректного отображения интерфейса Streamlit -->
-  <link rel="stylesheet" href="https://jsdelivr.net" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartCount — Навигатор посильности</title>
+
+  <!-- Подключаем стильный шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #06040a 100%);
+      --panel-bg: rgba(255, 255, 255, 0.03);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f0ff;
+      --text-muted: #a5a1b8;
+      --accent: #8b5cf6;
+      --accent-hover: #a78bfa;
+      --accent-glow: rgba(139, 92, 246, 0.35);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --radius: 16px;
+      --transition: 0.25s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #fff, var(--accent-hover));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+
+    .field {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    select option {
+      background: #15102a;
+      color: var(--text-main);
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px var(--accent-glow);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .result {
+      margin-top: 28px;
+      padding: 22px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .result.visible {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .result strong {
+      color: var(--accent-hover);
+    }
+
+    .result.success { border-color: var(--success); }
+    .result.warning { border-color: var(--warning); }
+    .result.danger  { border-color: var(--danger); }
+
+    @media (max-width: 480px) {
+      .container { padding: 28px 22px; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="container">
+    <h1>SmartCount</h1>
+    <p class="subtitle">Навигатор посильности — оцените свои силы перед следующей дозой</p>
 
-  <!-- Подключаем ядро stlite, которое запустит Python прямо в браузере -->
-  <script src="https://jsdelivr.net"></script>
+    <div class="field">
+      <label for="weight">Вес тела (кг)</label>
+      <input type="number" id="weight" placeholder="Например, 70" min="30" max="250" step="0.5">
+    </div>
+
+    <div class="field">
+      <label for="lastDose">Время с последней дозы (часы)</label>
+      <input type="number" id="lastDose" placeholder="Например, 4" min="0" step="0.5">
+    </div>
+
+    <div class="field">
+      <label for="substance">Вещество</label>
+      <select id="substance">
+        <option value="caffeine">Кофеин</option>
+        <option value="alcohol">Алкоголь</option>
+        <option value="nicotine">Никотин</option>
+      </select>
+    </div>
+
+    <button id="calcBtn">Рассчитать</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
   <script>
-    stlite.mount({
-      requirements: [], // Вашему коду не нужны внешние библиотеки вроде pandas, достаточно чистого Streamlit
-      entrypoint: "app.py",
-      files: {
-        "app.py": `
-import streamlit as st
+    const calcBtn = document.getElementById('calcBtn');
+    const resultEl = document.getElementById('result');
 
-# Настройка страницы
-st.set_page_config(
-    page_title="Z-Сбережения: Навигатор посильности",
-    page_icon="🏠",
-    layout="centered"
-)
+    calcBtn.addEventListener('click', () => {
+      const weight = parseFloat(document.getElementById('weight').value);
+      const hours = parseFloat(document.getElementById('lastDose').value);
+      const substance = document.getElementById('substance').value;
 
-# Заголовок программы
-st.title("🏠 Z-Сбережения: Навигатор посильности")
-st.caption("Экспресс-оценка кредитной нагрузки и выявление скрытого 'платёжного шока'")
-
-st.divider()
-
-# --- БЛОК 1: ВВОД ДАННЫХ ---
-st.header("1. Ваши финансовые параметры")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    salary = st.number_input("Ваш чистый доход в месяц (BYN):", value=3468, step=100)
-    has_partner = st.checkbox("Учитывать доход партнёра/супруга?")
-    if has_partner:
-        partner_salary = st.number_input("Чистый доход партнёра (BYN):", value=2500, step=100)
-        total_income = salary + partner_salary
-    else:
-        total_income = salary
-
-with col2:
-    price = st.number_input("Стоимость квартиры (BYN):", value=229140, step=5000)
-    down_payment_pct = st.slider("Первоначальный взнос (%):", min_value=10, max_value=50, value=10, step=5)
-
-# Расчет суммы взноса и суммы кредита
-down_payment = price * (down_payment_pct / 100)
-credit_amount = price - down_payment
-
-st.info(f"💰 **Сумма кредита:** {credit_amount:,.2f} BYN | **Взнос:** {down_payment:,.2f} BYN")
-
-# --- БЛОК 2: ПАРАМЕТРЫ КРЕДИТА ---
-st.header("2. Условия кредита")
-
-promo = st.checkbox("Акционный кредит ('1% в первые 2 года')?", value=True)
-
-if promo:
-    rate_promo = 1.0  # Ставка в льготный период
-    rate_main = 15.4  # Ставка со 2-го года
-else:
-    rate_main = st.number_input("Процентная ставка по кредиту (%):", value=14.1, step=0.1)
-    rate_promo = rate_main
-
-years = st.slider("Срок кредита (лет):", min_value=5, max_value=25, value=20)
-months = years * 12
-
-# --- БЛОК 3: РАСЧЕТ ПЛАТЕЖЕЙ ---
-def calc_annuity(amount, annual_rate, period_months):
-    if annual_rate == 0:
-        return amount / period_months
-    monthly_rate = (annual_rate / 100) / 12
-    payment = amount * (monthly_rate * (1 + monthly_rate)**period_months) / ((1 + monthly_rate)**period_months - 1)
-    return payment
-
-if promo:
-    payment_promo = (credit_amount * (rate_promo / 100)) / 12
-    payment_main = calc_annuity(credit_amount, rate_main, months - 24)
-else:
-    payment_promo = calc_annuity(credit_amount, rate_main, months)
-    payment_main = payment_promo
-
-safe_limit = total_income * 0.40
-dti_promo = (payment_promo / total_income) * 100
-dti_main = (payment_main / total_income) * 100
-
-st.divider()
-
-# --- БЛОК 4: ВЕРДИКТ И «СВЕТОФОР» ---
-st.header("3. Результат анализа посильности")
-
-if promo:
-    st.warning(f"⚡ **ВНИМАНИЕ! ВЫЯВЛЕН ПЛАТЁЖНЫЙ ШОК:**\\n"
-               f"- Платёж (1–24 мес): **{payment_promo:,.2f} BYN/мес** ({dti_promo:.1f}% от дохода)\\n"
-               f"- Платёж с 25-го месяца: **{payment_main:,.2f} BYN/мес** ({dti_main:.1f}% от дохода)\\n"
-               f"- Скачок платежа: **в {payment_main/payment_promo:.1f} раз!**")
-else:
-    st.write(f"Ежемесячный платёж: **{payment_main:,.2f} BYN/мес** ({dti_main:.1f}% от дохода)")
-
-if dti_main <= 40:
-    st.success("🟢 **ЗЕЛЁНЫЙ СВЕТ:** Кредит посилен. Нагрузка не превышает 40% вашего чистого дохода.")
-elif dti_main <= 60:
-    st.warning("🟡 **ЖЁЛТЫЙ СВЕТ:** Высокий риск! Нагрузка превышает рекомендуемые 40%. Потребуется жесткая экономия.")
-else:
-    st.error("🔴 **КРАСНЫЙ СВЕТ (КРАХ БЮДЖЕТА):** Кредит непосилен! Платёж забирает большую часть вашего дохода.")
-
-# --- БЛОК 5: ПРАВИЛО НАКОПИТЕЛЬНЫХ ЛЕТ ---
-st.divider()
-st.header("4. Альтернатива: Накопительные года")
-
-saving_rate = 0.20
-annual_savings = total_income * saving_rate * 12
-accum_years = price / annual_savings
-
-st.write(f"Если вы решите копить (откладывая 20% дохода = **{total_income * saving_rate:,.2f} BYN/мес**):")
-st.metric(label="Правило накопительных лет (до покупки 100% жилья)", value=f"{accum_years:.1f} лет")
-
-st.caption("Разработчики: Команда исследования Нацбанка РБ | Проект 'Z-Сбережения'")
-`
+      if (isNaN(weight) || isNaN(hours) || weight <= 0 || hours < 0) {
+        resultEl.className = 'result visible danger';
+        resultEl.innerHTML = '⚠️ Пожалуйста, введите корректные значения веса и времени.';
+        return;
       }
-    }, document.getElementById("root"));
+
+      // Условные коэффициенты выведения (для демонстрации логики)
+      const halfLife = {
+        caffeine: 5,
+        alcohol: 4,
+        nicotine: 2
+      };
+
+      const remaining = 50 * Math.pow(0.5, hours / halfLife[substance]);
+      const perKg = remaining / weight;
+
+      let level = 'success';
+      let verdict = 'Безопасно';
+
+      if (perKg > 1.2) {
+        level = 'danger';
+        verdict = 'Высокая нагрузка — лучше подождать';
+      } else if (perKg > 0.6) {
+        level = 'warning';
+        verdict = 'Умеренная нагрузка — соблюдайте осторожность';
+      }
+
+      resultEl.className = `result visible ${level}`;
+      resultEl.innerHTML = `
+        Остаточное количество: <strong>${remaining.toFixed(1)}</strong> усл. ед.<br>
+        На килограмм веса: <strong>${perKg.toFixed(3)}</strong> усл. ед./кг<br>
+        Вердикт: <strong>${verdict}</strong>
+      `;
+    });
   </script>
 </body>
 </html>
